@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 Tim Down.
+ * Copyright 2013 Tim Down.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@
  * stored in the same directory as the main log4javascript.js file.
  *
  * Author: Tim Down <tim@log4javascript.org>
- * Version: 1.4.4
+ * Version: 1.4.5
  * Edition: log4javascript
- * Build date: 8 February 2013
+ * Build date: 20 February 2013
  * Website: http://log4javascript.org
  */
 
@@ -151,7 +151,7 @@ var log4javascript = (function() {
 	Log4JavaScript.prototype = new EventSupport();
 
 	log4javascript = new Log4JavaScript();
-	log4javascript.version = "1.4.4";
+	log4javascript.version = "1.4.5";
 	log4javascript.edition = "log4javascript";
 
 	/* -------------------------------------------------------------------------- */
@@ -2005,6 +2005,7 @@ var log4javascript = (function() {
 		var failCallback = this.defaults.failCallback;
 		var postVarName = this.defaults.postVarName;
 		var sendAllOnUnload = this.defaults.sendAllOnUnload;
+		var contentType = this.defaults.contentType;
 		var sessionId = null;
 
 		var queuedLoggingEvents = [];
@@ -2093,7 +2094,11 @@ var log4javascript = (function() {
 
 		this.getHeaders = function() { return headers; };
 		this.addHeader = function(name, value) {
-			headers.push( { name: name, value: value } );
+			if (name.toLowerCase() == "content-type") {
+				contentType = value;
+			} else {
+				headers.push( { name: name, value: value } );
+			}
 		};
 
 		// Internal functions
@@ -2158,6 +2163,8 @@ var log4javascript = (function() {
 			return sendingAnything;
 		}
 
+		this.sendAllRemaining = sendAllRemaining;
+
 		function preparePostData(batchedLoggingEvents) {
 			// Format the logging events
 			var formattedMessages = [];
@@ -2178,13 +2185,16 @@ var log4javascript = (function() {
 					formattedMessages.join(appender.getLayout().batchSeparator) +
 					appender.getLayout().batchFooter;
 			}
-			postData = appender.getLayout().returnsPostData ? postData :
-				urlEncode(postVarName) + "=" + urlEncode(postData);
-			// Add the layout name to the post data
-			if (postData.length > 0) {
-				postData += "&";
+			if (contentType == appender.defaults.contentType) {
+				postData = appender.getLayout().returnsPostData ? postData :
+					urlEncode(postVarName) + "=" + urlEncode(postData);
+				// Add the layout name to the post data
+				if (postData.length > 0) {
+					postData += "&";
+				}
+				postData += "layout=" + urlEncode(appender.getLayout().toString());
 			}
-			return postData + "layout=" + urlEncode(appender.getLayout().toString());
+			return postData;
 		}
 
 		function scheduleSending() {
@@ -2230,16 +2240,10 @@ var log4javascript = (function() {
 					};
 					xmlHttp.open("POST", url, true);
 					try {
-						var contentTypeSet = false;
 						for (var i = 0, header; header = headers[i++]; ) {
-							if (header.name.toLowerCase() == "content-type") {
-								contentTypeSet = true;
-							}
 							xmlHttp.setRequestHeader(header.name, header.value);
 						}
-						if (!contentTypeSet) {
-							xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-						}
+						xmlHttp.setRequestHeader("Content-Type", contentType);
 					} catch (headerEx) {
 						var msg = "AjaxAppender.append: your browser's XMLHttpRequest implementation" +
 							" does not support setRequestHeader, therefore cannot post data. AjaxAppender disabled";
@@ -2319,7 +2323,8 @@ var log4javascript = (function() {
 		sendAllOnUnload: false,
 		requestSuccessCallback: null,
 		failCallback: null,
-		postVarName: "data"
+		postVarName: "data",
+		contentType: "application/x-www-form-urlencoded"
 	};
 
 	AjaxAppender.prototype.layout = new HttpPostDataLayout();

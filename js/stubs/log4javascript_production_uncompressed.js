@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 Tim Down.
+ * Copyright 2013 Tim Down.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ var log4javascript_stub = (function() {
 
 	log4javascript = {
 		isStub: true,
-		version: "1.4.4",
+		version: "1.4.5",
 		edition: "log4javascript_production",
         setDocumentReady: f,
 		setEventTypes: f,
@@ -240,6 +240,7 @@ var log4javascript_stub = (function() {
 		getPostVarName: f,
 		setPostVarName: f,
 		sendAll: f,
+		sendAllRemaining: f,
 		defaults: {
 			requestSuccessCallback: null,
 			failCallback: null

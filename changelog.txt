@@ -1,6 +1,17 @@
 log4javascript change log
 -------------------------
 
+1.4.5 (20/2/2013)
+- Changed AjaxAppender to send raw data rather than URL-encoded form data when
+  content-type is not "application/x-www-form-urlencoded"
+
+- Exposed sendAllRemaining() method of AjaxAppender
+
+1.4.4 (8/2/2013)
+- Fixed issue with repeated Content-Type headers in AjaxAppender
+
+- Improved uniqueness of PopUpAppender window name
+
 1.4.3 (18/9/2012)
 - Added addHeader() and getHeaders() methods to AjaxAppender
 
