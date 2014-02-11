@@ -613,7 +613,14 @@
 			window.onload = function() {
 				// Sort out document.domain
 				if (location.search) {
-					document.domain = unescape(location.search).substr(1);
+					var queryBits = unescape(location.search).substr(1).split("&"), nameValueBits;
+					for (var i = 0, len = queryBits.length; i < len; i++) {
+						nameValueBits = queryBits[i].split("=");
+						if (nameValueBits[0] == "log4javascript_domain") {
+							document.domain = nameValueBits[1];
+							break;
+						}
+					}
 				}
 
 				// Create DOM objects

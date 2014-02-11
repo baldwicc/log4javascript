@@ -1,5 +1,5 @@
 /**
- * Copyright 2008 Tim Down.
+ * Copyright 2009 Tim Down.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@
  * stored in the same directory as the main log4javascript.js file.
  *
  * Author: Tim Down <tim@log4javascript.org>
- * Version: 1.4
+ * Version: 1.4.1
  * Edition: log4javascript
- * Build date: 30 October 2008
+ * Build date: 24 March 2009
  * Website: http://log4javascript.org
  */
 
@@ -153,7 +153,7 @@ var log4javascript;
 	Log4JavaScript.prototype = new EventSupport();
 
 	log4javascript = new Log4JavaScript();
-	log4javascript.version = "1.4";
+	log4javascript.version = "1.4.1";
 	log4javascript.edition = "log4javascript";
 
 	/* -------------------------------------------------------------------------- */
@@ -2958,7 +2958,14 @@ var log4javascript;
 '			window.onload = function() {',
 '				// Sort out document.domain',
 '				if (location.search) {',
-'					document.domain = unescape(location.search).substr(1);',
+'					var queryBits = unescape(location.search).substr(1).split("&"), nameValueBits;',
+'					for (var i = 0, len = queryBits.length; i < len; i++) {',
+'						nameValueBits = queryBits[i].split("=");',
+'						if (nameValueBits[0] == "log4javascript_domain") {',
+'							document.domain = nameValueBits[1];',
+'							break;',
+'						}',
+'					}',
 '				}',
 '',
 '				// Create DOM objects',
@@ -5044,7 +5051,7 @@ var log4javascript;
 			var getConsoleUrl = function() {
 				var documentDomainSet = (document.domain != location.hostname);
 				return useDocumentWrite ? "" : getBaseUrl() + "console_uncompressed.html" +
-											   (documentDomainSet ? "?" + escape(document.domain) : "");
+											   (documentDomainSet ? "?log4javascript_domain=" + escape(document.domain) : "");
 			};
 
 			// Define methods and properties that vary between subclasses
@@ -5090,7 +5097,7 @@ var log4javascript;
 				};
 
 				this.isVisible = function() {
-					return !minimized;
+					return !minimized && !consoleClosed;
 				};
 
 				this.close = function(fromButton) {
@@ -5292,6 +5299,10 @@ var log4javascript;
 					if (!consoleWindowCreated) {
 						open();
 					}
+				};
+
+				this.isVisible = function() {
+					return safeToAppend();
 				};
 
 				// Define useful variables

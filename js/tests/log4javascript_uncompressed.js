@@ -1,5 +1,5 @@
 /**
- * Copyright 2008 Tim Down.
+ * Copyright 2009 Tim Down.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,8 +60,56 @@ function compareObjectInterface(obj1, obj1_name, obj2, obj2_name, namePrefix) {
 	return true;
 };
 
+// Simply tests a layout for exceptions when formatting
+var testLayoutWithVariables = function(layout, t) {
+	var emptyObject = {};
+	var emptyArray = [];
+	var emptyString = "";
+	var localUndefined = emptyArray[0];
+	var oneLevelObject = {
+		"name": "One-level object"
+	};
+	var twoLevelObject = {
+		"name": "Two-level object",
+		"data": oneLevelObject
+	};
+	var threeLevelObject = {
+		"name": "Three-level object",
+		"data": twoLevelObject
+	};
+	var anArray = [
+		3,
+		"stuff",
+		true,
+		false,
+		0,
+		null,
+		localUndefined,
+		3.14,
+		function(p) { return "I'm a function"; },
+		[1, "things"]
+	];
+	var arrayOfTestItems = [emptyObject, emptyString, emptyString, localUndefined, oneLevelObject,
+			twoLevelObject, threeLevelObject, anArray];
+
+	t.log("Testing layout " + layout)
+	for (var i = 0; i < arrayOfTestItems.length; i++) {
+		var ex = new Error("Test error");
+		var loggingEvent = new log4javascript.LoggingEvent(t.logger, new Date(), log4javascript.Level.INFO,
+				[arrayOfTestItems[i]], null);
+		t.log("Formatting", arrayOfTestItems[i], result);
+		var result = layout.format(loggingEvent);
+		// Now try with an exception
+		loggingEvent.exception = ex;
+		t.log("Formatting with exception", arrayOfTestItems[i], result);
+		result = layout.format(loggingEvent);
+	}
+};
+
 xn.test.enableTestDebug = true;
-xn.test.suite("log4javascript test suite", function(s) {
+xn.test.enable_log4javascript = false;
+
+xn.test.suite("log4javascript tests", function(s) {
 	log4javascript.logLog.setQuietMode(true);
 	var ArrayAppender = function(layout) {
 		if (layout) {
@@ -271,52 +319,6 @@ xn.test.suite("log4javascript test suite", function(s) {
 		t.logger.debug("TEST AGAIN");
 		t.assertEquals(t.appender.logMessages.length, 1);
 	});
-
-	// Simply tests a layout for exceptions when formatting
-	var testLayoutWithVariables = function(layout, t) {
-		var emptyObject = {};
-		var emptyArray = [];
-		var emptyString = "";
-		var localUndefined = emptyArray[0];
-		var oneLevelObject = {
-			"name": "One-level object"
-		};
-		var twoLevelObject = {
-			"name": "Two-level object",
-			"data": oneLevelObject
-		};
-		var threeLevelObject = {
-			"name": "Three-level object",
-			"data": twoLevelObject
-		};
-		var anArray = [
-			3,
-			"stuff",
-			true,
-			false,
-			0,
-			null,
-			localUndefined,
-			3.14,
-			function(p) { return "I'm a function"; },
-			[1, "things"]
-		];
-		var arrayOfTestItems = [emptyObject, emptyString, emptyString, localUndefined, oneLevelObject,
-				twoLevelObject, threeLevelObject, anArray];
-
-		t.log("Testing layout " + layout)
-		for (var i = 0; i < arrayOfTestItems.length; i++) {
-			var ex = new Error("Test error");
-			var loggingEvent = new log4javascript.LoggingEvent(t.logger, new Date(), log4javascript.Level.INFO,
-					[arrayOfTestItems[i]], null);
-			t.log("Formatting", arrayOfTestItems[i], result);
-			var result = layout.format(loggingEvent);
-			// Now try with an exception
-			loggingEvent.exception = ex;
-			t.log("Formatting with exception", arrayOfTestItems[i], result);
-			result = layout.format(loggingEvent);
-		}
-	};
 
 	s.test("", function(t) {
 		t.logger.debug("TEST");
@@ -667,6 +669,7 @@ xn.test.suite("log4javascript test suite", function(s) {
 		t.logger.removeAppender(browserConsoleAppender);
 	});
 
+/*
 	s.test("AjaxAppender JsonLayout single message test", function(t) {
 		t.async(10000);
 		// Create and add an Ajax appender
@@ -750,7 +753,7 @@ xn.test.suite("log4javascript test suite", function(s) {
 		t.logger.addAppender(ajaxAppender);
 		t.logger.debug(testMessage);
 	});
-
+*/
 	var testConsoleAppender = function(t, appender) {
 		var timeoutCallback = function() {
 			//alert("Failed. Debug messages follow.");
@@ -784,7 +787,9 @@ xn.test.suite("log4javascript test suite", function(s) {
 							appender.close();
 							t.fail("Log message not correctly logged (log container innerHTML: " + logContainer.innerHTML + ")");
 						} else {
+							t.assert(appender.isVisible());
 							appender.close();
+							t.assert(!appender.isVisible());
 							t.succeed();
 						}
 					} else {
@@ -815,16 +820,16 @@ xn.test.suite("log4javascript test suite", function(s) {
 		testConsoleAppender(t, inlineAppender);
 	});
 
-	s.test("InlineAppender with separate console HTML file test", function(t) {
-		var inlineAppender = new log4javascript.InlineAppender();
-		inlineAppender.setInitiallyMinimized(false);
-		inlineAppender.setNewestMessageAtTop(false);
-		inlineAppender.setScrollToLatestMessage(true);
-		inlineAppender.setUseDocumentWrite(false);
-		inlineAppender.setWidth(600);
-		inlineAppender.setHeight(200);
+	s.test("InPageAppender with separate console HTML file test", function(t) {
+		var inPageAppender = new log4javascript.InPageAppender();
+		inPageAppender.setInitiallyMinimized(false);
+		inPageAppender.setNewestMessageAtTop(false);
+		inPageAppender.setScrollToLatestMessage(true);
+		inPageAppender.setUseDocumentWrite(false);
+		inPageAppender.setWidth(600);
+		inPageAppender.setHeight(200);
 
-		testConsoleAppender(t, inlineAppender);
+		testConsoleAppender(t, inPageAppender);
 	});
 
 	s.test("PopUpAppender test", function(t) {
@@ -838,6 +843,8 @@ xn.test.suite("log4javascript test suite", function(s) {
 		popUpAppender.setHeight(200);
 
 		testConsoleAppender(t, popUpAppender);
+		
+		
 	});
 
 	s.test("PopUpAppender with separate console HTML file test", function(t) {

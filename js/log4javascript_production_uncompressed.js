@@ -1,5 +1,5 @@
 /**
- * Copyright 2008 Tim Down.
+ * Copyright 2009 Tim Down.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@
  * stored in the same directory as the main log4javascript.js file.
  *
  * Author: Tim Down <tim@log4javascript.org>
- * Version: 1.4
+ * Version: 1.4.1
  * Edition: log4javascript_production
- * Build date: 30 October 2008
+ * Build date: 24 March 2009
  * Website: http://log4javascript.org
  */
 
@@ -153,7 +153,7 @@ var log4javascript;
 	Log4JavaScript.prototype = new EventSupport();
 
 	log4javascript = new Log4JavaScript();
-	log4javascript.version = "1.4";
+	log4javascript.version = "1.4.1";
 	log4javascript.edition = "log4javascript_production";
 
 	/* -------------------------------------------------------------------------- */

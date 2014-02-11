@@ -1,6 +1,17 @@
 log4javascript change log
 -------------------------
 
+1.4.1 (23/3/2009)
+- Fixed document.domain/query string bug (#2519903 on Sourceforge Tracker)
+
+- Added isVisible() method to PopUpAppender
+
+- Added check for whether the console has been closed in isVisible() method of
+  InPageAppender
+
+- Included unit tests in the distribution
+
+
 1.4 (30/10/2008)
 
 - Added time() and timeEnd() methods to Logger
