@@ -1,7 +1,7 @@
 {
   "name": "log4javascript",
   "main": "log4javascript.js",
-  "version": "1.4",
+  "version": "1.4.6",
   "homepage": "http://log4javascript.org/",
   "authors": [
     "Tim Down <tim@log4javascript.org>"
