@@ -24,9 +24,9 @@
  * stored in the same directory as the main log4javascript.js file.
  *
  * Author: Tim Down <tim@log4javascript.org>
- * Version: 1.4.1
+ * Version: 1.4.2
  * Edition: log4javascript
- * Build date: 24 March 2009
+ * Build date: 14 October 2011
  * Website: http://log4javascript.org
  */
 
@@ -36,10 +36,10 @@
 // Next three methods are solely for IE5, which is missing them
 if (!Array.prototype.push) {
 	Array.prototype.push = function() {
-        for (var i = 0, len = arguments.length; i < len; i++){
-            this[this.length] = arguments[i];
-        }
-        return this.length;
+		for (var i = 0, len = arguments.length; i < len; i++){
+			this[this.length] = arguments[i];
+		}
+		return this.length;
 	};
 }
 
@@ -77,9 +77,7 @@ if (!Array.prototype.splice) {
 
 /* -------------------------------------------------------------------------- */
 
-var log4javascript;
-
-(function() {
+var log4javascript = (function() {
 
 	function isUndefined(obj) {
 		return typeof obj == "undefined";
@@ -153,7 +151,7 @@ var log4javascript;
 	Log4JavaScript.prototype = new EventSupport();
 
 	log4javascript = new Log4JavaScript();
-	log4javascript.version = "1.4.1";
+	log4javascript.version = "1.4.2";
 	log4javascript.edition = "log4javascript";
 
 	/* -------------------------------------------------------------------------- */
@@ -219,13 +217,21 @@ var log4javascript;
 		return text2.split("\n");
 	}
 
-	function urlEncode(str) {
-		return escape(str).replace(/\+/g, "%2B").replace(/"/g, "%22").replace(/'/g, "%27").replace(/\//g, "%2F").replace(/=/g, "%3D");
-	}
+	var urlEncode = (typeof window.encodeURIComponent != "undefined") ?
+		function(str) {
+			return encodeURIComponent(str);
+		}: 
+		function(str) {
+			return escape(str).replace(/\+/g, "%2B").replace(/"/g, "%22").replace(/'/g, "%27").replace(/\//g, "%2F").replace(/=/g, "%3D");
+		};
 
-	function urlDecode(str) {
-		return unescape(str).replace(/%2B/g, "+").replace(/%22/g, "\"").replace(/%27/g, "'").replace(/%2F/g, "/").replace(/%3D/g, "=");
-	}
+	var urlDecode = (typeof window.decodeURIComponent != "undefined") ?
+		function(str) {
+			return decodeURIComponent(str);
+		}: 
+		function(str) {
+			return unescape(str).replace(/%2B/g, "+").replace(/%22/g, "\"").replace(/%27/g, "'").replace(/%2F/g, "/").replace(/%3D/g, "=");
+		};
 
 	function array_remove(arr, val) {
 		var index = -1;
@@ -295,32 +301,32 @@ var log4javascript;
 	}
 
 	if (!Function.prototype.apply){
-	    Function.prototype.apply = function(obj, args) {
-	    	var methodName = "__apply__";
-	    	if (typeof obj[methodName] != "undefined") {
-	    		methodName += String(Math.random()).substr(2);
-	    	}
-	    	obj[methodName] = this;
+		Function.prototype.apply = function(obj, args) {
+			var methodName = "__apply__";
+			if (typeof obj[methodName] != "undefined") {
+				methodName += String(Math.random()).substr(2);
+			}
+			obj[methodName] = this;
 
-	    	var argsStrings = [];
-	    	for (var i = 0, len = args.length; i < len; i++) {
-	    		argsStrings[i] = "args[" + i + "]";
-	    	}
-	    	var script = "obj." + methodName + "(" + argsStrings.join(",") + ")";
-	    	var returnValue = eval(script);
-	    	delete obj[methodName];
-	    	return returnValue;
-	    };
+			var argsStrings = [];
+			for (var i = 0, len = args.length; i < len; i++) {
+				argsStrings[i] = "args[" + i + "]";
+			}
+			var script = "obj." + methodName + "(" + argsStrings.join(",") + ")";
+			var returnValue = eval(script);
+			delete obj[methodName];
+			return returnValue;
+		};
 	}
 
 	if (!Function.prototype.call){
-	    Function.prototype.call = function(obj) {
-	    	var args = [];
-	    	for (var i = 1, len = arguments.length; i < len; i++) {
-	    		args[i - 1] = arguments[i];
-	    	}
-	        return this.apply(obj, args);
-	    };
+		Function.prototype.call = function(obj) {
+			var args = [];
+			for (var i = 1, len = arguments.length; i < len; i++) {
+				args[i - 1] = arguments[i];
+			}
+			return this.apply(obj, args);
+		};
 	}
 
 	function getListenersPropertyName(eventName) {
@@ -440,7 +446,7 @@ var log4javascript;
 	/* ---------------------------------------------------------------------- */
 
 	var enabled = !((typeof log4javascript_disabled != "undefined") &&
-                    log4javascript_disabled);
+					log4javascript_disabled);
 
 	log4javascript.setEnabled = function(enable) {
 		enabled = bool(enable);
@@ -612,11 +618,11 @@ var log4javascript;
 		};
 
 		this.log = function(level, params) {
-			if (level.isGreaterOrEqual(this.getEffectiveLevel())) {
+			if (enabled && level.isGreaterOrEqual(this.getEffectiveLevel())) {
 				// Check whether last param is an exception
 				var exception;
 				var finalParamIndex = params.length - 1;
-				var lastParam = params[params.length - 1];
+				var lastParam = params[finalParamIndex];
 				if (params.length > 1 && isError(lastParam)) {
 					exception = lastParam;
 					finalParamIndex--;
@@ -668,47 +674,55 @@ var log4javascript;
 		};
 
 		this.group = function(name, initiallyExpanded) {
-			var effectiveAppenders = this.getEffectiveAppenders();
-			for (var i = 0, len = effectiveAppenders.length; i < len; i++) {
-				effectiveAppenders[i].group(name, initiallyExpanded);
+			if (enabled) {
+				var effectiveAppenders = this.getEffectiveAppenders();
+				for (var i = 0, len = effectiveAppenders.length; i < len; i++) {
+					effectiveAppenders[i].group(name, initiallyExpanded);
+				}
 			}
 		};
 
 		this.groupEnd = function(name) {
-			var effectiveAppenders = this.getEffectiveAppenders();
-			for (var i = 0, len = effectiveAppenders.length; i < len; i++) {
-				effectiveAppenders[i].groupEnd();
+			if (enabled) {
+				var effectiveAppenders = this.getEffectiveAppenders();
+				for (var i = 0, len = effectiveAppenders.length; i < len; i++) {
+					effectiveAppenders[i].groupEnd();
+				}
 			}
 		};
 
 		var timers = {};
 
 		this.time = function(name, level) {
-			if (isUndefined(name)) {
-				handleError("Logger.time: a name for the timer must be supplied");
-			} else if (level && !(level instanceof Level)) {
-				handleError("Logger.time: level supplied to timer " +
-					name + " is not an instance of log4javascript.Level");
-			} else {
-				timers[name] = new Timer(name, level);
+			if (enabled) {
+				if (isUndefined(name)) {
+					handleError("Logger.time: a name for the timer must be supplied");
+				} else if (level && !(level instanceof Level)) {
+					handleError("Logger.time: level supplied to timer " +
+						name + " is not an instance of log4javascript.Level");
+				} else {
+					timers[name] = new Timer(name, level);
+				}
 			}
 		};
 
 		this.timeEnd = function(name) {
-			if (isUndefined(name)) {
-				handleError("Logger.timeEnd: a name for the timer must be supplied");
-			} else if (timers[name]) {
-				var timer = timers[name];
-				var milliseconds = timer.getElapsedTime();
-				this.log(timer.level, ["Timer " + toStr(name) + " completed in " + milliseconds + "ms"]);
-				delete timers[name];
-			} else {
-				logLog.warn("Logger.timeEnd: no timer found with name " + name);
+			if (enabled) {
+				if (isUndefined(name)) {
+					handleError("Logger.timeEnd: a name for the timer must be supplied");
+				} else if (timers[name]) {
+					var timer = timers[name];
+					var milliseconds = timer.getElapsedTime();
+					this.log(timer.level, ["Timer " + toStr(name) + " completed in " + milliseconds + "ms"]);
+					delete timers[name];
+				} else {
+					logLog.warn("Logger.timeEnd: no timer found with name " + name);
+				}
 			}
 		};
 
 		this.assert = function(expr) {
-			if (!expr) {
+			if (enabled && !expr) {
 				var args = [];
 				for (var i = 1, len = arguments.length; i < len; i++) {
 					args.push(arguments[i]);
@@ -866,8 +880,8 @@ var log4javascript;
 			exception) {
 		this.logger = logger;
 		this.timeStamp = timeStamp;
-        this.timeStampInMilliseconds = timeStamp.getTime();
-        this.timeStampInSeconds = Math.floor(this.timeStampInMilliseconds / 1000);
+		this.timeStampInMilliseconds = timeStamp.getTime();
+		this.timeStampInSeconds = Math.floor(this.timeStampInMilliseconds / 1000);
 		this.milliseconds = this.timeStamp.getMilliseconds();
 		this.level = level;
 		this.messages = messages;
@@ -920,7 +934,7 @@ var log4javascript;
 		overrideTimeStampsSetting: false,
 		useTimeStampsInMilliseconds: null,
 
-		format: function(loggingEvent) {
+		format: function() {
 			handleError("Layout.format: layout supplied has no format() method");
 		},
 
@@ -1228,49 +1242,49 @@ var log4javascript;
 		return this.combineMessages;
 	};
 
-	JsonLayout.prototype.format = function(loggingEvent) {
-		var layout = this;
-		var dataValues = this.getDataValues(loggingEvent, this.combineMessages);
-		var str = "{" + this.lineBreak;
-		var i;
-		
-		function formatValue(val, prefix, expand) {
-			// Check the type of the data value to decide whether quotation marks
-			// or expansion are required
-			var formattedValue;
-			var valType = typeof val;
-			if (val instanceof Date) {
-				formattedValue = String(val.getTime());
-			} else if (expand && (val instanceof Array)) {
-				formattedValue = "[" + layout.lineBreak;
-				for (i = 0, len = val.length; i < len; i++) {
-					var childPrefix = prefix + layout.tab;
-					formattedValue += childPrefix + formatValue(val[i], childPrefix, false);
-					if (i < val.length - 1) {
-						formattedValue += ",";
-					}
-					formattedValue += layout.lineBreak;
-				}
-				formattedValue += prefix + "]";
-			} else if (valType !== "number" && valType !== "boolean") {
-				formattedValue = "\"" + escapeNewLines(toStr(val).replace(/\"/g, "\\\"")) + "\"";
-			} else {
-				formattedValue = val;
-			}
-			return formattedValue;
-		}
-		
-		for (i = 0, len = dataValues.length; i < len; i++) {
-			str += this.tab + "\"" + dataValues[i][0] + "\"" + this.colon + formatValue(dataValues[i][1], this.tab, true);
-			if (i < dataValues.length - 1) {
-				str += ",";
-			}
-			str += this.lineBreak;
-		}
+    JsonLayout.prototype.format = function(loggingEvent) {
+        var layout = this;
+        var dataValues = this.getDataValues(loggingEvent, this.combineMessages);
+        var str = "{" + this.lineBreak;
+        var i, len;
 
-		str += "}" + this.lineBreak;
-		return str;
-	};
+        function formatValue(val, prefix, expand) {
+            // Check the type of the data value to decide whether quotation marks
+            // or expansion are required
+            var formattedValue;
+            var valType = typeof val;
+            if (val instanceof Date) {
+                formattedValue = String(val.getTime());
+            } else if (expand && (val instanceof Array)) {
+                formattedValue = "[" + layout.lineBreak;
+                for (var i = 0, len = val.length; i < len; i++) {
+                    var childPrefix = prefix + layout.tab;
+                    formattedValue += childPrefix + formatValue(val[i], childPrefix, false);
+                    if (i < val.length - 1) {
+                        formattedValue += ",";
+                    }
+                    formattedValue += layout.lineBreak;
+                }
+                formattedValue += prefix + "]";
+            } else if (valType !== "number" && valType !== "boolean") {
+                formattedValue = "\"" + escapeNewLines(toStr(val).replace(/\"/g, "\\\"")) + "\"";
+            } else {
+                formattedValue = val;
+            }
+            return formattedValue;
+        }
+
+        for (i = 0, len = dataValues.length - 1; i <= len; i++) {
+            str += this.tab + "\"" + dataValues[i][0] + "\"" + this.colon + formatValue(dataValues[i][1], this.tab, true);
+            if (i < len) {
+                str += ",";
+            }
+            str += this.lineBreak;
+        }
+
+        str += "}" + this.lineBreak;
+        return str;
+    };
 
 	JsonLayout.prototype.ignoresThrowable = function() {
 	    return false;
@@ -1934,27 +1948,32 @@ var log4javascript;
 	/* ---------------------------------------------------------------------- */
 	// AjaxAppender related
 
-	function getXmlHttp(errorHandler) {
-		var xmlHttp = null;
-		if (typeof XMLHttpRequest == "object" || typeof XMLHttpRequest == "function") {
-			xmlHttp = new XMLHttpRequest();
-		} else {
-			try {
-				xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");
-			} catch (e1){
-				try {
-					xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
-				} catch (e2) {
-					if (errorHandler) {
-						errorHandler();
-					} else {
-						handleError("getXmlHttp: unable to obtain XMLHttpRequest object");
-					}
-				}
-			}
-		}
-		return xmlHttp;
-	}
+    var xmlHttpFactories = [
+        function() { return new XMLHttpRequest(); },
+        function() { return new ActiveXObject("Msxml2.XMLHTTP"); },
+        function() { return new ActiveXObject("Microsoft.XMLHTTP"); }
+    ];
+
+    var getXmlHttp = function(errorHandler) {
+        // This is only run the first time; the value of getXmlHttp gets
+        // replaced with the factory that succeeds on the first run
+        var xmlHttp = null, factory;
+        for (var i = 0, len = xmlHttpFactories.length; i < len; i++) {
+            factory = xmlHttpFactories[i];
+            try {
+                xmlHttp = factory();
+                getXmlHttp = factory;
+                return xmlHttp;
+            } catch (e) {
+            }
+        }
+        // If we're here, all factories have failed, so throw an error
+        if (errorHandler) {
+            errorHandler();
+        } else {
+            handleError("getXmlHttp: unable to obtain XMLHttpRequest object");
+        }
+    };
 
 	function isHttpRequestSuccessful(xmlHttp) {
 		return (isUndefined(xmlHttp.status) || xmlHttp.status === 0 ||
@@ -2155,7 +2174,7 @@ var log4javascript;
 		}
 
 		function scheduleSending() {
-			setTimeout(sendAll, timerInterval);
+			window.setTimeout(sendAll, timerInterval);
 		}
 
 		function xmlHttpErrorHandler() {
@@ -2230,7 +2249,6 @@ var log4javascript;
 
 				if (queuedLoggingEvents.length >= actualBatchSize) {
 					var currentLoggingEvent;
-					var postData = "";
 					var batchedLoggingEvents = [];
 					while ((currentLoggingEvent = queuedLoggingEvents.shift())) {
 						batchedLoggingEvents.push(currentLoggingEvent);
@@ -2240,10 +2258,8 @@ var log4javascript;
 
 					// If using a timer, the queue of requests will be processed by the
 					// timer function, so nothing needs to be done here.
-					if (!timed) {
-						if (!waitForResponse || (waitForResponse && !sending)) {
-							sendAll();
-						}
+					if (!timed && (!waitForResponse || (waitForResponse && !sending))) {
+                        sendAll();
 					}
 				}
 			}
@@ -5161,7 +5177,7 @@ var log4javascript;
 					// the iframe's window object
 					iframeContainerDiv.innerHTML = "<iframe id='" + iframeId + "' name='" + iframeId +
 						"' width='100%' height='100%' frameborder='0'" + iframeSrc +
-						"scrolling='no'></iframe>";
+						" scrolling='no'></iframe>";
 					consoleClosed = false;
 
 					// Write the console HTML to the iframe
@@ -5347,7 +5363,7 @@ var log4javascript;
 						popUp = window.open(getConsoleUrl(), windowName, windowProperties);
 						consoleClosed = false;
 						consoleWindowCreated = true;
-						if (popUp) {
+						if (popUp && popUp.document) {
 							if (useDocumentWrite && useOldPopUp && isLoaded(popUp)) {
 								popUp.mainPageReloaded();
 								finalInit();
@@ -5548,12 +5564,12 @@ var log4javascript;
 
 		// Create and return an XHTML string from the node specified
 		function getXhtml(rootNode, includeRootNode, indentation, startNewLine, preformatted) {
-			includeRootNode = (typeof includeRootNode == "undefined") ? true : (includeRootNode ? true : false);
+			includeRootNode = (typeof includeRootNode == "undefined") ? true : !!includeRootNode;
 			if (typeof indentation != "string") {
 				indentation = "";
 			}
-			startNewLine = startNewLine ? true : false;
-			preformatted = preformatted ? true : false;
+			startNewLine = !!startNewLine;
+			preformatted = !!preformatted;
 			var xhtml;
 
 			function isWhitespace(node) {
@@ -5602,7 +5618,7 @@ var log4javascript;
 						xhtml += lt;
 						// Allow for namespaces, where present
 						var prefix = getNamespace(rootNode);
-						var hasPrefix = prefix ? true : false;
+						var hasPrefix = !!prefix;
 						if (hasPrefix) {
 							xhtml += prefix + ":";
 						}
@@ -5788,27 +5804,33 @@ var log4javascript;
 	/* ---------------------------------------------------------------------- */
 	// Main load
 
-	function addWindowLoadListener(listener) {
-		var oldOnload = window.onload;
-		if (typeof window.onload != "function") {
-			window.onload = listener;
-		} else {
-			window.onload = function(evt) {
-				if (oldOnload) {
-					oldOnload(evt);
-				}
-				listener(evt);
-			};
-		}
-	}
+   log4javascript.setDocumentReady = function() {
+       pageLoaded = true;
+       log4javascript.dispatchEvent("load", {});
+   };
 
-	addWindowLoadListener(function() {
-		pageLoaded = true;
-		log4javascript.dispatchEvent("load", {});
-	});
-	
-	// Ensure that the log4javascript object is available in the window. This
-	// is necessary for log4javascript to be available in IE if loaded using
-	// Dojo's module system
-	window.log4javascript = log4javascript;
+    if (window.addEventListener) {
+        window.addEventListener("load", log4javascript.setDocumentReady, false);
+    } else if (window.attachEvent) {
+        window.attachEvent("onload", log4javascript.setDocumentReady);
+    } else {
+        var oldOnload = window.onload;
+        if (typeof window.onload != "function") {
+            window.onload = log4javascript.setDocumentReady;
+        } else {
+            window.onload = function(evt) {
+                if (oldOnload) {
+                    oldOnload(evt);
+                }
+                log4javascript.setDocumentReady();
+            };
+        }
+    }
+
+    // Ensure that the log4javascript object is available in the window. This
+    // is necessary for log4javascript to be available in IE if loaded using
+    // Dojo's module system
+    window.log4javascript = log4javascript;
+
+    return log4javascript;
 })();

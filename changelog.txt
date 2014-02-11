@@ -1,6 +1,14 @@
 log4javascript change log
 -------------------------
 
+1.4.2 (13/10/2011)
+- Fixed JsonLayout trailing comma issue. See
+  http://stackoverflow.com/questions/7735382/asmx-weirdness-deserializing-json-
+  blob-from-log4javascript-logging
+
+- Fixed bugs #3401332, #3185753, #2884623, #2817213 on Sourceforge Tracker
+
+
 1.4.1 (23/3/2009)
 - Fixed document.domain/query string bug (#2519903 on Sourceforge Tracker)
 

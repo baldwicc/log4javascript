@@ -47,17 +47,22 @@ var log4javascript_stub = (function() {
 		isFatalEnabled: f
 	});
 
+	var getLogger = function() {
+		return new Logger();
+	};
+
 	function Log4JavaScript() {}
 	log4javascript = new Log4JavaScript();
 
 	log4javascript = {
 		isStub: true,
-		version: "1.4.1",
+		version: "1.4.2",
 		edition: "log4javascript_lite",
 		setEnabled: f,
 		isEnabled: f,
 		setShowStackTraces: f,
 		getDefaultLogger: getLogger,
+		getLogger: getLogger,
 		getNullLogger: getLogger,
 		Level: ff(),
 		LoggingEvent: ff(),

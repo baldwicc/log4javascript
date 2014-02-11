@@ -463,7 +463,7 @@ xn.test.suite("log4javascript tests", function(s) {
 		
 		t.loggingEvent = new log4javascript.LoggingEvent(t.logger, t.date, log4javascript.Level.DEBUG, ["TEST"], null);
 		t.layout = new log4javascript.JsonLayout();
-	}
+	};
 
 	s.test("JsonLayout seconds/milliseconds test 1", function(t) {
 		setUpJsonLayoutMillisecondsTest(t);
@@ -493,7 +493,6 @@ xn.test.suite("log4javascript tests", function(s) {
         var regex = new RegExp('^{"logger":"test","timestamp":' + t.timeInSeconds + ',"level":"DEBUG","url":".*","message":"TEST","milliseconds":' + t.milliseconds + '}$');
         t.assertRegexMatches(regex, formatted);
 	});
-
 	s.test("HttpPostDataLayout format test", function(t) {
 		var layout = new log4javascript.HttpPostDataLayout();
 		testLayoutWithVariables(layout, t);

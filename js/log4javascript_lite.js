@@ -18,7 +18,7 @@
 if(!Array.prototype.shift){Array.prototype.shift=function(){if(this.length>0){var firstItem=this[0];for(var i=0,len=this.length-1;i<len;i++){this[i]=this[i+1];}
 this.length=this.length-1;return firstItem;}};}
 var log4javascript;(function(){var newLine="\r\n";function Log4JavaScript(){}
-log4javascript=new Log4JavaScript();log4javascript.version="1.4.1";log4javascript.edition="log4javascript_lite";function getExceptionMessage(ex){if(ex.message){return ex.message;}else if(ex.description){return ex.description;}else{return toStr(ex);}}
+log4javascript=new Log4JavaScript();log4javascript.version="1.4.2";log4javascript.edition="log4javascript_lite";function getExceptionMessage(ex){if(ex.message){return ex.message;}else if(ex.description){return ex.description;}else{return String(ex);}}
 function getUrlFileName(url){var lastSlashIndex=Math.max(url.lastIndexOf("/"),url.lastIndexOf("\\"));return url.substr(lastSlashIndex+1);}
 function getExceptionStringRep(ex){if(ex){var exStr="Exception: "+getExceptionMessage(ex);try{if(ex.lineNumber){exStr+=" on line number "+ex.lineNumber;}
 if(ex.fileName){exStr+=" in file "+getUrlFileName(ex.fileName);}}catch(localEx){}
@@ -41,13 +41,13 @@ return!popUpsBlocked&&popUpLoaded&&!popUpClosed;}
 function padWithZeroes(num,len){var str=""+num;while(str.length<len){str="0"+str;}
 return str;}
 function padWithSpaces(str,len){while(str.length<len){str+=" ";}
-return str;};this.append=function(loggingEvent){if(!initialized){init();}
-queuedLoggingEvents.push(loggingEvent);if(safeToAppend()){appendQueuedLoggingEvents();}}
-function appendQueuedLoggingEvents(){if(safeToAppend()){while(queuedLoggingEvents.length>0){var currentLoggingEvent=queuedLoggingEvents.shift();var date=currentLoggingEvent.timeStamp;var formattedDate=padWithZeroes(date.getHours(),2)+":"+
+return str;}
+this.append=function(loggingEvent){if(!initialized){init();}
+queuedLoggingEvents.push(loggingEvent);if(safeToAppend()){appendQueuedLoggingEvents();}};function appendQueuedLoggingEvents(){if(safeToAppend()){while(queuedLoggingEvents.length>0){var currentLoggingEvent=queuedLoggingEvents.shift();var date=currentLoggingEvent.timeStamp;var formattedDate=padWithZeroes(date.getHours(),2)+":"+
 padWithZeroes(date.getMinutes(),2)+":"+padWithZeroes(date.getSeconds(),2);var formattedMessage=formattedDate+" "+padWithSpaces(currentLoggingEvent.level.name,5)+" - "+currentLoggingEvent.getCombinedMessages();var throwableStringRep=currentLoggingEvent.getThrowableStrRep();if(throwableStringRep){formattedMessage+=newLine+throwableStringRep;}
 popUp.log(currentLoggingEvent.level,formattedMessage);}
 if(focusPopUp){popUp.focus();}}}}
-log4javascript.Appender=Appender;function Logger(name){var appender=new Appender();var loggerLevel=Level.ALL;this.log=function(level,params){if(level.isGreaterOrEqual(this.getLevel())){var exception;var finalParamIndex=params.length-1;var lastParam=params[params.length-1];if(params.length>1&&isError(lastParam)){exception=lastParam;finalParamIndex--;}
+log4javascript.Appender=Appender;function Logger(){var appender=new Appender();var loggerLevel=Level.ALL;this.log=function(level,params){if(level.isGreaterOrEqual(this.getLevel())){var exception;var finalParamIndex=params.length-1;var lastParam=params[params.length-1];if(params.length>1&&isError(lastParam)){exception=lastParam;finalParamIndex--;}
 var messages=[];for(var i=0;i<=finalParamIndex;i++){messages[i]=params[i];}
 var loggingEvent=new LoggingEvent(this,new Date(),level,messages,exception);appender.append(loggingEvent);}};this.setLevel=function(level){loggerLevel=level;};this.getLevel=function(){return loggerLevel;};}
 Logger.prototype={trace:function(){this.log(Level.TRACE,arguments);},debug:function(){this.log(Level.DEBUG,arguments);},info:function(){this.log(Level.INFO,arguments);},warn:function(){this.log(Level.WARN,arguments);},error:function(){this.log(Level.ERROR,arguments);},fatal:function(){this.log(Level.FATAL,arguments);},isEnabledFor:function(level){return level.isGreaterOrEqual(this.getLevel());},isTraceEnabled:function(){return this.isEnabledFor(Level.TRACE);},isDebugEnabled:function(){return this.isEnabledFor(Level.DEBUG);},isInfoEnabled:function(){return this.isEnabledFor(Level.INFO);},isWarnEnabled:function(){return this.isEnabledFor(Level.WARN);},isErrorEnabled:function(){return this.isEnabledFor(Level.ERROR);},isFatalEnabled:function(){return this.isEnabledFor(Level.FATAL);}};var defaultLogger=null;log4javascript.getDefaultLogger=function(){if(!defaultLogger){defaultLogger=new Logger();}

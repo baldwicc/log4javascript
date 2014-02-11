@@ -68,7 +68,7 @@ var log4javascript_stub = (function() {
 		return new Logger();
 	};
 
-	function EventSupport() {};
+	function EventSupport() {}
 
 	copy(EventSupport.prototype, {
 		setEventTypes: f,
@@ -85,8 +85,9 @@ var log4javascript_stub = (function() {
 
 	log4javascript = {
 		isStub: true,
-		version: "1.4.1",
+		version: "1.4.2",
 		edition: "log4javascript_production",
+        setDocumentReady: f,
 		setEventTypes: f,
 		addEventListener: f,
 		removeEventListener: f,
@@ -166,7 +167,7 @@ var log4javascript_stub = (function() {
 		setMinimalDaysInFirstWeek: f,
 		getMinimalDaysInFirstWeek: f,
 		format: f
-	}
+	};
 
 	// PatternLayout
 	log4javascript.PatternLayout = ff();

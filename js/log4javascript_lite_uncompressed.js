@@ -33,7 +33,7 @@ var log4javascript;
 	var newLine = "\r\n";
 	function Log4JavaScript() {}
 	log4javascript = new Log4JavaScript();
-	log4javascript.version = "1.4.1";
+	log4javascript.version = "1.4.2";
 	log4javascript.edition = "log4javascript_lite";
 
 	function getExceptionMessage(ex) {
@@ -42,7 +42,7 @@ var log4javascript;
 		} else if (ex.description) {
 			return ex.description;
 		} else {
-			return toStr(ex);
+			return String(ex);
 		}
 	}
 
@@ -435,7 +435,7 @@ var log4javascript;
 				str += " ";
 			}
 			return str;
-		};
+		}
 
 		this.append = function(loggingEvent) {
 			if (!initialized) {
@@ -445,7 +445,7 @@ var log4javascript;
 			if (safeToAppend()) {
 				appendQueuedLoggingEvents();
 			}
-		}
+		};
 
 		function appendQueuedLoggingEvents() {
 			if (safeToAppend()) {
@@ -474,7 +474,7 @@ var log4javascript;
 	/* ---------------------------------------------------------------------- */
 	// Loggers
 
-	function Logger(name) {
+	function Logger() {
 		var appender = new Appender();
 		var loggerLevel = Level.ALL;
 
