@@ -24,9 +24,9 @@
  * stored in the same directory as the main log4javascript.js file.
  *
  * Author: Tim Down <tim@log4javascript.org>
- * Version: 1.4.3
+ * Version: 1.4.4
  * Edition: log4javascript_production
- * Build date: 18 September 2012
+ * Build date: 8 February 2013
  * Website: http://log4javascript.org
  */
 
@@ -151,7 +151,7 @@ var log4javascript = (function() {
 	Log4JavaScript.prototype = new EventSupport();
 
 	log4javascript = new Log4JavaScript();
-	log4javascript.version = "1.4.3";
+	log4javascript.version = "1.4.4";
 	log4javascript.edition = "log4javascript_production";
 
 	/* -------------------------------------------------------------------------- */
@@ -2149,9 +2149,15 @@ var log4javascript = (function() {
 					};
 					xmlHttp.open("POST", url, true);
 					try {
-						xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+						var contentTypeSet = false;
 						for (var i = 0, header; header = headers[i++]; ) {
+							if (header.name.toLowerCase() == "content-type") {
+								contentTypeSet = true;
+							}
 							xmlHttp.setRequestHeader(header.name, header.value);
+						}
+						if (!contentTypeSet) {
+							xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 						}
 					} catch (headerEx) {
 						var msg = "AjaxAppender.append: your browser's XMLHttpRequest implementation" +
